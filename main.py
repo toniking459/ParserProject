@@ -1,16 +1,29 @@
-# This is a sample Python script.
+from bs4 import BeautifulSoup
+import requests
+import lxml
+import re
+import time
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+print("Введите ссылку на сайт:")
+user_inp = f"{input()}"
 
+def get_parse(url_of_site: str) -> list:
+    """Функиця, обрабатывающая пользовательский ввод ссылки на сайт для парсинга"""
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    page_to_parse = requests.get(url_of_site)
+    print("Устанавливаю соединение...")
+    time.sleep(0.5)
+    if page_to_parse.status_code == 200:
+        print("Соединение установлено")
+        html_code = BeautifulSoup(page_to_parse.text, "html.parser")
+        list1 = []
+        for item in html_code.findAll('title'):
+            list1.append(item.getText())
+    else:
+        raise Exception("Ошибка: Соединение не установлено")
 
+    pass
+    # Пока будет так, возможно будет функция, которая выдает какой-то общий результат
+    # Наприме, информация о всех заголовках, ссылках и т.д.
+    # Либо под каждую отельную задачу будет своя функция
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
