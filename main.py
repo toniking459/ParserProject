@@ -68,7 +68,7 @@ async def get_hrefs(url_of_site: str) -> None:
 
 
 async def get_headers(url_of_site: str) -> None:
-    """Асинхронная функция, собирающая все заголовки с сайта"""
+    """Асинхронная функция, собирающая все заголовки с сайта."""
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url_of_site, headers={'UserAgent': UserAgent().chrome}) as response:
