@@ -10,13 +10,41 @@ import numpy as np
 from fake_useragent import UserAgent
 import asyncio
 import aiohttp
-import queue
+from urllib.parse import urljoin
 
-# https://2ip.ru
+srch_rqst = input("Введите запрос: ")
+def search_without_browser(query) -> list:
+    """
+  Функция, которая выполняет поисковой запрос в Google
 
-# print("Введите ссылку на сайт:")
-# user_inp = f"{input()}"
+  Args:
+    query: Текстовый запрос.
+
+  Returns:
+    Список URL-адресов результатов поиска.
+  """
+    # URL поискового запроса Google
+    url = f"https://www.google.com/search?q={query}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    results = soup.find_all('a')
+    base_url = "https://www.google.com/"
+    links = [urljoin(base_url, result['href']) for result in results]
+
+    return links
+
+search_results = search_without_browser(srch_rqst)
+
+
+
+
+
+
 start_time = time.time()
+
+
 
 async def get_classes(url_of_site: str) -> list:
     """Асинхронная функция, собирающая названия всех классов на сайте"""
@@ -76,14 +104,15 @@ async def get_headers(url_of_site: str) -> str:
                 html_text = await response.text(encoding='utf-8')
                 html_code = BeautifulSoup(html_text, "html.parser")
                 soup = BeautifulSoup(html_text, 'lxml')
-                heading_list=[]
-                for i in range(1,7):
+                heading_list = []
+                for i in range(1, 7):
                     headings = html_code.find_all(f'h{i}')
                     heading_list.extend(headings)
 
             else:
                 raise TypeError("Ошибка: Соединение не установлено, возможно неправильно указан URL сайта.")
     return f"Headings: {heading_list}\n h1: {soup.h1.text}, \t h2: {soup.h2.text}, \t h3: {soup.h3.text}, \t h4: {soup.h4.text}, \t h5: {soup.h5} , \t h6: {soup.h6.text}"
+
 
 async def get_title(url_of_site: str) -> list:
     """Асинхронная функция, собирающая все названия"""
@@ -106,12 +135,15 @@ async def get_title(url_of_site: str) -> list:
                 raise TypeError("Ошибка: Соединение не установлено, возможно неправильно указан URL сайта.")
     return list_smth
 
+
 predict_classes1 = (
     'container',
     'logo-wrapper',
     'logo'
 
 )
+
+
 async def get_custom_classes(url_of_site: str, predict_classes: tuple) -> list:
     async with aiohttp.ClientSession() as session:
         async with session.get(url_of_site, headers={'UserAgent': UserAgent().chrome}) as response:
@@ -141,7 +173,7 @@ async def get_custom_classes(url_of_site: str, predict_classes: tuple) -> list:
                 raise TypeError("Ошибка: Соединение не установлено, возможно неправильно указан URL сайта.")
 
 
-#asyncio.run(get_title("https://qna.habr.com"))
+# asyncio.run(get_title("https://qna.habr.com"))
 
 # async def main():
 #     # Create the queue of 'work'
@@ -179,6 +211,11 @@ async def get_custom_classes(url_of_site: str, predict_classes: tuple) -> list:
 # print(asyncio.run(get_hrefs("https://qna.habr.com")))
 # print(asyncio.run(get_headers("https://qna.habr.com")))
 # print(asyncio.run(get_custom_classes("https://qna.habr.com",predict_classes1)))
+
+
+def get_html_to_llm():
+    pass
+
 
 end_time = time.time()
 program_work_time = end_time - start_time
