@@ -35,6 +35,11 @@ def search_without_browser(query) -> list:
     return links
 
 search_results = search_without_browser(srch_rqst)
+pattern = r"^https://www\.google\.com/url\?esrc=s&q=&rct=j&sa=U&url=https://.*$"
+for result in search_results:
+    match = re.match(pattern, result)
+    if bool(match):
+        print(result)
 
 
 
