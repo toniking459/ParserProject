@@ -31,18 +31,27 @@ def search_without_browser(query) -> list:
     results = soup.find_all('a')
     base_url = "https://www.google.com/"
     links = [urljoin(base_url, result['href']) for result in results]
+    pattern = r"^https://www\.google\.com/url\?esrc=s&q=&rct=j&sa=U&url=https://.*$"
+    links1 = []
+    for result in links:
+        match = re.match(pattern, result)
+        corr_link = ''
+        if bool(match):
+            corr_link = result
+            links1.append(corr_link)
 
-    return links
-
-search_results = search_without_browser(srch_rqst)
-pattern = r"^https://www\.google\.com/url\?esrc=s&q=&rct=j&sa=U&url=https://.*$"
-for result in search_results:
-    match = re.match(pattern, result)
-    if bool(match):
-        print(result)
+    return links1
 
 
+# search_results = search_without_browser(srch_rqst)
+# pattern = r"^https://www\.google\.com/url\?esrc=s&q=&rct=j&sa=U&url=https://.*$"
+# for result in search_results:
+#     match = re.match(pattern, result)
+#     if bool(match):
+#         print(result)
 
+
+print(search_without_browser(srch_rqst))
 
 
 
