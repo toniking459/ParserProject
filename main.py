@@ -11,6 +11,7 @@ from fake_useragent import UserAgent
 import asyncio
 import aiohttp
 from urllib.parse import urljoin
+import g4f
 
 srch_rqst = input("Введите запрос: ")
 def search_without_browser(query) -> list:
@@ -43,16 +44,41 @@ def search_without_browser(query) -> list:
     return links1
 
 
+def get_html_to_llm(usr_rqst: str, urls_from_search: list) -> list:
+  """
+  Отправляет контент каждой страницы из списка в ChatGPT и возвращает ответы.
+
+  Args:
+    usr_rqst: Пользовательский запрос.
+    urls_from_search: Список URL-адресов.
+
+  Returns:
+    Список ответов ChatGPT.
+  """
+  responses = []
+  for url in urls_from_search:
+
+      response = requests.get(url, headers={'UserAgent': UserAgent().chrome})
+      soup = BeautifulSoup(response.text, "html.parser")
+      page_text = soup.get_text(separator=" ", strip=True)
+      chat_response = g4f.ChatCompletion.create(
+          model="gpt-3.5-turbo",
+          messages=[{"role": "user", "content": f"Найди {usr_rqst} из страницы: {page_text}"}],
+      )
+      responses.append(chat_response)
+  return responses
+
+
+
 # search_results = search_without_browser(srch_rqst)
-# pattern = r"^https://www\.google\.com/url\?esrc=s&q=&rct=j&sa=U&url=https://.*$"
+# pattern = r"^https://www\.google\.com/ur\l\?esrc=s&q=&rct=j&sa=U&url=https://.*$"
 # for result in search_results:
 #     match = re.match(pattern, result)
 #     if bool(match):
 #         print(result)
 
-
-print(search_without_browser(srch_rqst))
-
+usr_rqst = input("Введите запрос для ИИ: ")
+print(get_html_to_llm(usr_rqst,search_without_browser(srch_rqst)))
 
 
 start_time = time.time()
@@ -186,49 +212,11 @@ async def get_custom_classes(url_of_site: str, predict_classes: tuple) -> list:
                 raise TypeError("Ошибка: Соединение не установлено, возможно неправильно указан URL сайта.")
 
 
-# asyncio.run(get_title("https://qna.habr.com"))
-
-# async def main():
-#     # Create the queue of 'work'
-#     work_queue = asyncio.Queue()
-#
-#     # Put some 'work' in the queue
-#     for url in [
-#         "http://google.com",
-#         "http://yahoo.com",
-#         "http://linkedin.com",
-#         "http://apple.com",
-#         "http://microsoft.com",
-#         "http://facebook.com",
-#         "http://twitter.com"
-#     ]:
-#         await work_queue.put(url)
-#
-#     await asyncio.gather(
-#         asyncio.create_task(get_hrefs(url)),
-#         asyncio.create_task(get_title(url)),
-#         asyncio.create_task(get_classes(url)),
-#         asyncio.create_task(get_headers(url)))
-#
-#
-# async def tasks():
-#    await main()
-#
-#
-# if __name__ == "__main__":
-#    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-#    asyncio.run(main())
-
 # print(asyncio.run(get_classes("https://qna.habr.com")))
 # print(asyncio.run(get_title("https://qna.habr.com")))
 # print(asyncio.run(get_hrefs("https://qna.habr.com")))
 # print(asyncio.run(get_headers("https://qna.habr.com")))
 # print(asyncio.run(get_custom_classes("https://qna.habr.com",predict_classes1)))
-
-
-def get_html_to_llm():
-    pass
-
 
 end_time = time.time()
 program_work_time = end_time - start_time
